@@ -41,7 +41,7 @@ var commonNouns = [
 
 // Global Variables
 var canvas = new fabric.Canvas('c');
-var wordBankOffsetX = 600;
+var wordBankOffsetX = 570;
 var wordBankOffsetY = 20;
 var questionOffsetY = 220;
 var wordBank = [];
@@ -52,7 +52,6 @@ var isHovering = false;
 
 // Setup
 // _________________________
-
 // Setting up the word bank
 for (var i = commonNouns.length - 1; i >= 0; i--) {    
   
@@ -104,10 +103,10 @@ function createWord(word, left, top) {
 
   var circle = new fabric.Circle({
     fill: '#ffffff',
-      radius: 10,   
-      left: -10,                 
-      originY: 'center',
-      shadow: 'rgba(0,0,0,0.2) 0px 0px 10px'
+    radius: 10,   
+    left: -10,                 
+    originY: 'center',
+    shadow: 'rgba(0,0,0,0.2) 0px 0px 10px'
   });
 
   // Group text label and box
