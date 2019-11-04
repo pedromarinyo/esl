@@ -31,7 +31,8 @@ var commonNouns = [
   "tribe",
   "city state",
   "civilization",
-  "technological\nachievement",
+  "technological",
+  "achievement",
   "culture",
   "cruelty",
   "savage"
@@ -43,11 +44,14 @@ var commonNouns = [
 var canvas = new fabric.Canvas('c');
 var wordBankOffsetX = 570;
 var wordBankOffsetY = 20;
+var questionOffsetX = 40;
 var questionOffsetY = 220;
+
 var wordBank = [];
 var questions = [];
 var questionBlanks = [];
 var isHovering = false;
+var columnLength = 5;
 
 
 // Setup
@@ -55,8 +59,8 @@ var isHovering = false;
 // Setting up the word bank
 for (var i = commonNouns.length - 1; i >= 0; i--) {    
   
-  var column = (i < 4) ? 0 : 220;
-  var row = (i < 4) ? i : i - 4;
+  var column = (i < columnLength) ? 0 : 220;
+  var row = (i < columnLength) ? i : i - columnLength;
 
   // Saving position info to wordbank array
   wordBank[commonNouns[i]] = {"word": commonNouns[i], "column": wordBankOffsetX + column, "row": (100 * row) + wordBankOffsetY };
@@ -68,8 +72,8 @@ for (var i = commonNouns.length - 1; i >= 0; i--) {
 
 // Setting up the questions
 questions = [
-  ["The use of", wordBank["adobe"], "as a building material was a great ", wordBank["technological\nachievement"], "."],
-  ["The use of", wordBank["adobe"], "as a building material was a great ", wordBank["technological\nachievement"], "."]
+  ["The use of", wordBank["adobe"], "as a building material was a great ", wordBank["technological"], wordBank["achievement"], "."],
+  ["The use of", wordBank["adobe"], "as a building material was a great ", wordBank["technological"], wordBank["achievement"], "."]
 ];
 
 
@@ -199,7 +203,7 @@ function showQuestion(question) {
         
         hoverCursor: 'default',
         radius: 20,        
-        left: 40,
+        left: questionOffsetX,
         top: (60 * i) + questionOffsetY,
         hasControls: false,
         hasBorders: false,
@@ -232,7 +236,7 @@ function showQuestion(question) {
     } else {
 
       var text = new fabric.Text(question[i], {
-        left: 40,
+        left: questionOffsetX,
         top: (60 * i) + questionOffsetY,    
         fill: "white",
         fontFamily: "Roboto",  
