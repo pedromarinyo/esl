@@ -39,13 +39,15 @@ var commonNouns = [
 ];
 
 
-
 // Global Variables
 var canvas = new fabric.Canvas('c');
-var wordBankOffsetX = 570;
-var wordBankOffsetY = 20;
+var wordBankOffsetX = 640;
+var wordBankOffsetY = 240;
 var questionOffsetX = 40;
-var questionOffsetY = 220;
+var questionOffsetY = 240;
+
+var postcardOffsetX = 10;
+var postcardOffsetY = 20;
 
 var wordBank = [];
 var questions = [];
@@ -53,13 +55,15 @@ var questionBlanks = [];
 var isHovering = false;
 var columnLength = 5;
 
-
 // Setup
 // _________________________
+// Setting up postcard image
+drawPostcard();
+
 // Setting up the word bank
 for (var i = commonNouns.length - 1; i >= 0; i--) {    
   
-  var column = (i < columnLength) ? 0 : 220;
+  var column = (i < columnLength) ? 0 : 180;
   var row = (i < columnLength) ? i : i - columnLength;
 
   // Saving position info to wordbank array
@@ -81,10 +85,6 @@ showQuestion(questions[0]);
 
 
 
-
-
-
-
 // Functions
 // _________________________
 // Create word in word bank.
@@ -93,12 +93,12 @@ function createWord(word, left, top) {
   // Create a rectangle object
   var rect = new fabric.Rect({        
     fill: '#248cb5',
-    width: 200,
-    height: 80
+    width: 140,
+    height: 60
   });
 
   var text = new fabric.Text(word, {
-    left: 40,
+    left: 20,
     top: 20,    
     fill: "white",
     fontFamily: "Roboto",
@@ -173,7 +173,7 @@ function revealAnswer(blankWord, wordBank) {
   var text = new fabric.Text(blankWord.word, {
         left: blankWord.coords.left + 20,
         top: blankWord.coords.top,    
-        fill: "white",
+        fill: "#333",
         fontFamily: "Helvetica",  
         fontSize: 28,
         opacity: 0
@@ -199,7 +199,7 @@ function showQuestion(question) {
       
       // Create a circle object
       var circle = new fabric.Circle({        
-        fill: '#6ef062',
+        fill: '#7cbf78',
         
         hoverCursor: 'default',
         radius: 20,        
@@ -238,8 +238,8 @@ function showQuestion(question) {
       var text = new fabric.Text(question[i], {
         left: questionOffsetX,
         top: (60 * i) + questionOffsetY,    
-        fill: "white",
-        fontFamily: "Roboto",  
+        fill: "#333",
+        fontFamily: "Poppins",  
         fontSize: 22,
         hoverCursor: 'default'
       });
@@ -248,4 +248,27 @@ function showQuestion(question) {
 
     }
   }
+}
+
+// Draw postcard features
+function drawPostcard() {
+  
+  fabric.Image.fromURL('assets/postmark.png', function(oImg) {
+  
+    // Adding postmark
+    oImg.scale(0.45);
+    oImg.opacity = 0.65;
+    oImg.left = 700;
+    oImg.top = 30;
+    
+    canvas.add(oImg);
+
+    // Adding line details
+    canvas.add(new fabric.Line([0, 0, 0, 650], {
+        left: 600,
+        top: 70,
+        stroke: '#333',
+        strokeWidth: 2
+    }));
+  });
 }
