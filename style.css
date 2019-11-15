@@ -1,0 +1,24 @@
+  body {
+        margin: 0px;
+        padding: 0px;        
+        text-align: center;
+        background-color: #eee;
+      }
+      
+      #canvasContainer {
+        margin: 0px;
+        padding: 0px;        
+        background-image: repeating-linear-gradient(30deg, #ffe7bd 0%, #ffdea3 80%);
+        
+        display: inline-block;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+                
+        border-style: dashed;        
+        border: 10px solid #eb4034;
+        border-image: repeating-linear-gradient( 45deg, #eb4034 0%, #eb4034 5%, #349feb 5%, #349feb 10%) 10 ;
+      }
+
+      canvas {
+        margin: 0px;
+        padding: 0px;        
+      }
