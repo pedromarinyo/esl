@@ -174,7 +174,7 @@ function revealAnswer(blankWord, wordBank) {
         left: blankWord.coords.left + 20,
         top: blankWord.coords.top,    
         fill: "#333",
-        fontFamily: "Helvetica",  
+        fontFamily: "hevetica",  
         fontSize: 28,
         opacity: 0
       });
@@ -239,7 +239,7 @@ function showQuestion(question) {
         left: questionOffsetX,
         top: (60 * i) + questionOffsetY,    
         fill: "#333",
-        fontFamily: "Poppins",  
+        fontFamily: 'satisfy',  
         fontSize: 22,
         hoverCursor: 'default'
       });
@@ -260,6 +260,11 @@ function drawPostcard() {
     oImg.opacity = 0.65;
     oImg.left = 700;
     oImg.top = 30;
+    oImg.hasControls = false;
+    oImg.hasBorders = false;
+    oImg.lockMovementX = true;
+    oImg.lockMovementY = true;
+    oImg.hoverCursor = "default";
     
     canvas.add(oImg);
 
