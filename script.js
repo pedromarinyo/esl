@@ -39,8 +39,39 @@ var commonNouns = [
 ];
 
 
+// Expeditions
+var expeditions = [];
+expeditions.push({
+  name: "Greece",  
+  description: "Greece is considered the cradle of Western civilisation, being the birthplace of democracy, Western philosophy, Western literature, historiography, political science, major scientific and mathematical principles, Western drama and notably the Olympic Games.",
+  coordX: 560,
+  coordY: 275,
+  image: "assets/pantheon_present2.png"
+});
+expeditions.push({
+  name: "China",  
+  description: "China emerged as one of the world's first civilizations, in the fertile basin of the Yellow River in the North China Plain.",
+  coordX: 840,
+  coordY: 275,
+  image: "assets/pantheon_present1.png"
+});
+expeditions.push({
+  name: "Singapore",  
+  description: "Singapore, an island city-state off southern Malaysia, is a global financial center with a tropical climate and multicultural population. Its colonial core centers on the Padang, a cricket field since the 1830s and now flanked by grand buildings such as City Hall, with its 18 Corinthian columns",
+  coordX: 800,
+  coordY: 385,
+  image: "assets/pantheon_past1.png"
+});
+
+
+
+
 // Global Variables
+// _________________________
 var canvas = new fabric.Canvas('c');
+var expeditionDetailsCard; 
+var expeditionDetailsButton;
+
 var wordBankOffsetX = 640;
 var wordBankOffsetY = 240;
 var questionOffsetX = 40;
@@ -55,10 +86,24 @@ var questionBlanks = [];
 var isHovering = false;
 var columnLength = 5;
 
+var showPostcard = false;
+var showWordBank = false;
+var showQuestions = false;
+fabric.Object.prototype.objectCaching = false;
+
+
+
 // Setup
 // _________________________
+
+
+// Drawing map
+drawMap();
+
+
 // Setting up postcard image
-drawPostcard();
+// Drawing postcard
+if (showPostcard) { drawPostcard(); }
 
 // Setting up the word bank
 for (var i = commonNouns.length - 1; i >= 0; i--) {    
@@ -70,23 +115,313 @@ for (var i = commonNouns.length - 1; i >= 0; i--) {
   wordBank[commonNouns[i]] = {"word": commonNouns[i], "column": wordBankOffsetX + column, "row": (100 * row) + wordBankOffsetY };
   
   // Creating the box and word label
-  createWord(commonNouns[i], wordBank[commonNouns[i]].column, wordBank[commonNouns[i]].row);  
+  if (showWordBank) { createWord(commonNouns[i], wordBank[commonNouns[i]].column, wordBank[commonNouns[i]].row);  }  
 }
 
-
-// Setting up the questions
+// Setting up questions
 questions = [
   ["The use of", wordBank["adobe"], "as a building material was a great ", wordBank["technological"], wordBank["achievement"], "."],
   ["The use of", wordBank["adobe"], "as a building material was a great ", wordBank["technological"], wordBank["achievement"], "."]
 ];
 
-
-showQuestion(questions[0]);
-
+// Showing questions
+if (showQuestions) { showQuestion(questions[0]); }
 
 
 // Functions
 // _________________________
+// Phases
+
+
+// Introduction
+function chapterIntroduction() {
+  // Show verbal instructions
+
+}
+
+
+
+
+// Interface Functions
+// Draw map
+function drawMap() {
+  
+  // Creating map image
+  fabric.Image.fromURL('assets/map_aged.png', function(oImg) {
+    oImg.scale(1);
+    
+    oImg.left = canvas.width / 2;
+    oImg.top = canvas.height / 2;
+    oImg.hasControls = false;
+    oImg.hasBorders = false;
+    oImg.lockMovementX = true;
+    oImg.lockMovementY = true;
+    oImg.hoverCursor = "default";
+    oImg.originY = "center";
+    oImg.originX = "center";   
+    oImg.selectable = false;
+    canvas.add(oImg);  
+    
+    oImg.sendToBack();         
+  });
+
+  // Drawing clouds
+  var clouds = fabric.Image.fromURL('assets/clouds.png', function(oImg) {
+    oImg.scale(1);
+    oImg.left = canvas.width / 2;
+    oImg.top = canvas.height / 2;   
+    oImg.hoverCursor = "default";
+    oImg.originY = "center";
+    oImg.originX = "left";   
+    oImg.selectable = false;
+    canvas.add(oImg);  
+    oImg.sendToBack();
+    animateClouds(oImg);
+  });
+
+  // Drawing travel lines
+  var line = new fabric.Line([400, 300, 400, 300],{
+    stroke: '#eb4545',
+    strokeWidth: 3,
+    strokeDashArray: [true, true, false],
+    strokeLineJoin: "round"
+  });
+  canvas.add(line);
+  line.bringToFront();
+  animateTravelLines_to(line);
+  
+
+  // Adding expiditions markers  
+  for (var i = expeditions.length - 1; i >= 0; i--) {
+    createExpeditionMarker(expeditions[i]);
+  }
+
+  // Adding expedition details card
+  createExpeditionDetails();  
+}
+
+function createExpeditionMarker(expedition) {
+  // Create a circle object
+  var circle = new fabric.Circle({        
+    fill: '#00a99d',
+    
+    hoverCursor: 'default',
+    radius: 15,        
+    left: expedition.coordX,
+    top: expedition.coordY,
+    hasControls: false,
+    hasBorders: false,
+    lockMovementX: true,
+    lockMovementY: true,
+    originY: 'center',
+    originX: 'center',
+    shadow: 'rgba(0,0,0,0.2) 0px 0px 10px',
+    expedition: expedition
+  });
+  
+  canvas.add(circle);
+  circle.bringToFront();  
+
+
+  // Add click/tap gesture event listener to expedition markers
+  circle.on("mouseup", function() {  
+    updateExpeditionDetails(expedition);
+  });
+}
+
+// Create expedition details card
+function createExpeditionDetails() {
+
+  // Creating card
+  var rect = new fabric.Rect({        
+    fill: '#669b9d',
+    opacity: 0.9,    
+    hoverCursor: 'default',
+    width: 300,        
+    height: 400,
+    left: 20,
+    top: 20,
+    cornerRadius: 10,
+
+    originY: 'top',
+    originX: 'left',
+    shadow: 'rgba(0,0,0,0.2) 0px 0px 10px'
+  });
+
+  // Creating title
+  var title = new fabric.Textbox("Expedition Details", {
+    left: 30,
+    top: 30,
+    width: 280,
+    height: 50,
+    fill: "#fff",
+    fontFamily: 'satisfy',  
+    fontSize: 32,
+    hoverCursor: 'default',
+    textAlign: "center"
+  });
+
+
+  // Creating description
+  var description = new fabric.Textbox("Choose a destination", {
+    left: 40,
+    top: 90,
+    width: 260,
+    height: 320,
+    fill: "#fff",
+    fontFamily: 'hevetica',  
+    fontSize: 18,
+    hoverCursor: 'default',
+    textAlign: "left"
+  });
+
+  // Creating card group
+  expeditionDetailsCard = new fabric.Group([rect, title, description], {
+    left: 40,
+    hasControls: false,
+    hasBorders: false,
+    selectable: false,
+    lockMovementX: true,
+    lockMovementY: true    
+  }); 
+
+
+  // Creating thumbnail image and adding to card group
+  fabric.Image.fromURL("assets/pantheon_past1.png", function(oImg) {
+    oImg.scale(0.31);
+    
+    oImg.left = 0;
+    oImg.top = 250;
+    
+    oImg.hasControls = false;
+    oImg.hasBorders = false;
+    oImg.lockMovementX = true;
+    oImg.lockMovementY = true;
+    oImg.hoverCursor = "default";
+    oImg.originY = "left";
+    oImg.originX = "center";   
+    oImg.selectable = false;
+
+    expeditionDetailsCard.add(oImg);       
+  });
+
+  // _____
+    
+  // Creating button
+  var button = new fabric.Rect({        
+    fill: '#feff80',
+    opacity: 1,    
+    hoverCursor: 'pointer',
+    width: 200,        
+    height: 60,    
+    
+    
+    originY: 'top',
+    originX: 'left',
+    shadow: 'rgba(0,0,0,0.2) 0px 0px 10px'
+  });
+
+  // Creating button label
+  var label = new fabric.Textbox("Start!", {
+    width: 180,  
+    left: 10,
+    top: 10,    
+    fill: "#000",
+    fontFamily: 'satisfy',  
+    fontSize: 32,
+    hoverCursor: 'default',
+    textAlign: "center"
+  });
+
+  // Creating expedition details button group
+  expeditionDetailsButton = new fabric.Group([button, label], {
+    top: 550,
+    left: -200,
+    hasControls: false,
+    hasBorders: false,
+    selectable: false,
+    lockMovementX: true,
+    lockMovementY: true,
+    hoverCursor: "pointer"  
+  }); 
+  
+  // Adding to canvas  
+  canvas.add(expeditionDetailsCard);
+  canvas.add(expeditionDetailsButton);
+}
+
+// Update expeidtion details card
+function updateExpeditionDetails(expedition) {
+  
+  // Updating details via global variable
+  canvas.remove(expeditionDetailsCard);
+  expeditionDetailsButton.left = -300;
+  expeditionDetailsCard.left = -300;
+  expeditionDetailsCard.item(1).text = expedition.name;
+  expeditionDetailsCard.item(2).text = expedition.description;
+  expeditionDetailsCard.item(3).setSrc(expedition.image);
+
+  expeditionDetailsCard.animate({'left': 40}, { 
+    onChange: canvas.renderAll.bind(canvas), 
+    duration: 600,
+    easing: fabric.util.ease.easeOutQuad
+  });
+
+  expeditionDetailsButton.animate({'left': 90}, { 
+    onChange: canvas.renderAll.bind(canvas), 
+    duration: 1000,
+    easing: fabric.util.ease.easeOutBack
+  });
+
+  // Refresh canvas
+  canvas.add(expeditionDetailsCard);
+
+  expeditionDetailsButton.bringToFront();
+
+}
+
+// Animate map lines and clouds
+function animateTravelLines_to(line) {
+
+  // Generate random coordinates
+  var coords = [
+    Math.floor(Math.random() * canvas.width),
+    Math.floor(Math.random() * canvas.height)
+  ];
+  
+  line.x1 = line.x2;
+  line.y1 = line.y2;
+  
+
+  line.animate({'x2': coords[0], 'y2': coords[1], 'opacity': 1}, { 
+    onChange: canvas.renderAll.bind(canvas), 
+    duration: 50000,
+    easing: fabric.util.ease.easeInOutQuad,
+    onComplete: function() {animateTravelLines_from(line);}
+  });   
+}
+
+function animateTravelLines_from(line) {
+  line.animate({'opacity': 0}, { 
+    onChange: canvas.renderAll.bind(canvas), 
+    duration: 1000,
+    easing: fabric.util.ease.easeInQuad,
+    onComplete: function() {animateTravelLines_to(line);}
+  });  
+}
+
+function animateClouds(clouds) {  
+  clouds.left = -2000;
+  clouds.animate({'left': 1024}, { 
+    onChange: canvas.renderAll.bind(canvas), 
+    duration: 80000,
+    easing: fabric.util.ease.easeOutSquare,
+    onComplete: function() {animateClouds(clouds);}
+  });      
+}
+
+
+
 // Create word in word bank.
 function createWord(word, left, top) {
 
@@ -122,7 +457,7 @@ function createWord(word, left, top) {
     shadow: 'rgba(0,0,0,0.2) 0px 0px 10px'
   });
 
-  // Add mouseUp event listener
+  // Add Mouse Up event listener
   group.on('mouseup', function(){      
     
     var isCorrect = false;
@@ -213,34 +548,19 @@ function showQuestion(question) {
         shadow: 'rgba(0,0,0,0.2) 0px 0px 10px'
       });
 
-      circle.on('mouseover', function(){      
-          this.animate('radius', 30, { 
-          onChange: canvas.renderAll.bind(canvas), 
-          duration: 300,
-          easing: fabric.util.ease.easeOutBounce
-        });
-      });
-
-      circle.on('mouseout', function(){      
-          this.animate('radius', 20, { 
-          onChange: canvas.renderAll.bind(canvas), 
-          duration: 300,
-          easing: fabric.util.ease.easeOutBounce
-        });
-      });
-
       questionBlanks.push({'coords': circle, 'word': question[i].word});
       canvas.add(circle);
 
 
     } else {
 
+      // Create text
       var text = new fabric.Text(question[i], {
         left: questionOffsetX,
         top: (60 * i) + questionOffsetY,    
         fill: "#333",
         fontFamily: 'satisfy',  
-        fontSize: 22,
+        fontSize: 32,
         hoverCursor: 'default'
       });
 
