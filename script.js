@@ -184,7 +184,12 @@ function drawMap() {
     stroke: '#eb4545',
     strokeWidth: 3,
     strokeDashArray: [true, true, false],
-    strokeLineJoin: "round"
+    strokeLineJoin: "round",
+    hasControls: false,
+    hasBorders: false,
+    selectable: false,
+    lockMovementX: true,
+    lockMovementY: true,
   });
   canvas.add(line);
   line.bringToFront();
@@ -211,6 +216,7 @@ function createExpeditionMarker(expedition) {
     top: expedition.coordY,
     hasControls: false,
     hasBorders: false,
+    selectable: false,
     lockMovementX: true,
     lockMovementY: true,
     originY: 'center',
