@@ -1,71 +1,3 @@
-
-// Variables
-// _________________________
-var prepostions = [
-  "to",
-  "around",
-  "by",
-  "for",
-  "in"
-];
-
-var properNouns = [
-  "Aztecs",
-  "Iroqois League",
-  "Maya",
-  "Mississippians",
-  "Inca"
-];
-
-var verbs = [
-  "migrate",
-  "emerge",
-  "adapt",
-  "modify",
-  "characterize"
-];
-
-var commonNouns = [
-  "ice age",
-  "adobe",
-  "tribe",
-  "city state",
-  "civilization",
-  "technological",
-  "achievement",
-  "culture",
-  "cruelty",
-  "savage"
-];
-
-
-// Expeditions
-var expeditions = [];
-expeditions.push({
-  name: "Greece",  
-  description: "Greece is considered the cradle of Western civilisation, being the birthplace of democracy, Western philosophy, Western literature, historiography, political science, major scientific and mathematical principles, Western drama and notably the Olympic Games.",
-  coordX: 560,
-  coordY: 275,
-  image: "assets/pantheon_present2.png"
-});
-expeditions.push({
-  name: "China",  
-  description: "China emerged as one of the world's first civilizations, in the fertile basin of the Yellow River in the North China Plain.",
-  coordX: 840,
-  coordY: 275,
-  image: "assets/pantheon_present1.png"
-});
-expeditions.push({
-  name: "Singapore",  
-  description: "Singapore, an island city-state off southern Malaysia, is a global financial center with a tropical climate and multicultural population. Its colonial core centers on the Padang, a cricket field since the 1830s and now flanked by grand buildings such as City Hall, with its 18 Corinthian columns",
-  coordX: 800,
-  coordY: 385,
-  image: "assets/pantheon_past1.png"
-});
-
-
-
-
 // Global Variables
 // _________________________
 var canvas = new fabric.Canvas('c');
@@ -89,49 +21,30 @@ var columnLength = 5;
 var showPostcard = false;
 var showWordBank = false;
 var showQuestions = false;
+var fadeInOutRect;
 fabric.Object.prototype.objectCaching = false;
 
 
 
-// Setup
-// _________________________
 
+
+// ___________________________________________________________________________
+// Setup
+// ___________________________________________________________________________
 
 // Drawing map
-drawMap();
+drawMap();    
 
-
-// Setting up postcard image
-// Drawing postcard
+// Drawing postcard  
 if (showPostcard) { drawPostcard(); }
 
-// Setting up the word bank
-for (var i = commonNouns.length - 1; i >= 0; i--) {    
-  
-  var column = (i < columnLength) ? 0 : 180;
-  var row = (i < columnLength) ? i : i - columnLength;
-
-  // Saving position info to wordbank array
-  wordBank[commonNouns[i]] = {"word": commonNouns[i], "column": wordBankOffsetX + column, "row": (100 * row) + wordBankOffsetY };
-  
-  // Creating the box and word label
-  if (showWordBank) { createWord(commonNouns[i], wordBank[commonNouns[i]].column, wordBank[commonNouns[i]].row);  }  
-}
-
-// Setting up questions
-questions = [
-  ["The use of", wordBank["adobe"], "as a building material was a great ", wordBank["technological"], wordBank["achievement"], "."],
-  ["The use of", wordBank["adobe"], "as a building material was a great ", wordBank["technological"], wordBank["achievement"], "."]
-];
-
-// Showing questions
-if (showQuestions) { showQuestion(questions[0]); }
 
 
-// Functions
-// _________________________
+
+
+// ___________________________________________________________________________
 // Phases
-
+// ___________________________________________________________________________
 
 // Introduction
 function chapterIntroduction() {
@@ -141,6 +54,11 @@ function chapterIntroduction() {
 
 
 
+
+
+// ___________________________________________________________________________
+// Phases
+// ___________________________________________________________________________
 
 // Interface Functions
 // Draw map
@@ -195,17 +113,30 @@ function drawMap() {
   line.bringToFront();
   animateTravelLines_to(line);
   
-
   // Adding expiditions markers  
-  for (var i = expeditions.length - 1; i >= 0; i--) {
-    createExpeditionMarker(expeditions[i]);
+  for (let [expeditionName, expedition] of expeditions) {
+    createExpeditionMarker(expedition);
   }
 
-  // Adding expedition details card
+  // Adding blank expedition details card
   createExpeditionDetails();  
+
+  // Drawing fading in, out rectangle
+  fadeInOutRect = new fabric.Circle({
+    left: 1024/2,
+    top: 768/2,
+    fill: 'black',
+    opacity: '1',
+    radius: 0,
+    originY: 'center',
+    originX: 'center'    
+  });
+
+  canvas.add(fadeInOutRect);
 }
 
 function createExpeditionMarker(expedition) {
+  
   // Create a circle object
   var circle = new fabric.Circle({        
     fill: '#00a99d',
@@ -356,7 +287,7 @@ function createExpeditionDetails() {
   canvas.add(expeditionDetailsButton);
 }
 
-// Update expeidtion details card
+// Update expedition details card
 function updateExpeditionDetails(expedition) {
   
   // Updating details via global variable
@@ -383,6 +314,9 @@ function updateExpeditionDetails(expedition) {
   canvas.add(expeditionDetailsCard);
 
   expeditionDetailsButton.bringToFront();
+  expeditionDetailsButton.on("mouseup", function() {  
+    fadeOut(1000);
+  });
 
 }
 
@@ -406,7 +340,6 @@ function animateTravelLines_to(line) {
     onComplete: function() {animateTravelLines_from(line);}
   });   
 }
-
 function animateTravelLines_from(line) {
   line.animate({'opacity': 0}, { 
     onChange: canvas.renderAll.bind(canvas), 
@@ -415,7 +348,6 @@ function animateTravelLines_from(line) {
     onComplete: function() {animateTravelLines_to(line);}
   });  
 }
-
 function animateClouds(clouds) {  
   clouds.left = -2000;
   clouds.animate({'left': 1024}, { 
@@ -425,8 +357,6 @@ function animateClouds(clouds) {
     onComplete: function() {animateClouds(clouds);}
   });      
 }
-
-
 
 // Create word in word bank.
 function createWord(word, left, top) {
@@ -493,10 +423,10 @@ function createWord(word, left, top) {
 
 
   // Add rectangle onto canvas
-  canvas.add(group);
+    canvas.add(group);
 }
 
-// Returns objects to their original position
+// Return object to original position
 function returnToPosition(object, left, top) {
   object.animate({'top': top, 'left': left}, { 
     onChange: canvas.renderAll.bind(canvas), 
@@ -603,3 +533,22 @@ function drawPostcard() {
     }));
   });
 }
+
+// Fade in, out Transition
+function fadeOut(duration) {
+  fadeInOutRect.bringToFront();
+  fadeInOutRect.animate({'radius': 700}, {
+    onChange: canvas.renderAll.bind(canvas), 
+    duration: duration
+  });
+}
+
+function fadeIn(duration) {
+  fadeInOutRect.bringToFront();
+  fadeInOutRect.animate({'radius': 0}, {
+    onChange: canvas.renderAll.bind(canvas), 
+    duration: duration
+  });
+}
+
+
