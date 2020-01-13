@@ -7,7 +7,16 @@ var expeditions = new Map([
     description: "Greece is considered the cradle of Western civilization, being the birthplace of democracy, Western philosophy, Western literature, historiography, political science, major scientific and mathematical principles, Western drama and notably the Olympic Games.",
     coordX: 560,
     coordY: 275,
-    image: "assets/pantheon_present2.png"
+    image: "assets/pantheon_present2.png", 
+
+    // Sec. 1
+    sec1: {
+      wordbank: ["verb", "noun"]
+    },
+    // Sec. 2
+    sec1: {},
+    // Sec. 3
+    sec1: {}
   }],  
 
   // China
