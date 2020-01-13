@@ -1,4 +1,5 @@
 // Expeditions
+const wordMode = {TEST: "text", BLANK: "blank"};
 var expeditions = new Map([
   
   // Greece
@@ -11,7 +12,8 @@ var expeditions = new Map([
 
     // Sec. 1
     sec1: {
-      wordbank: ["verb", "noun"]
+      wordBank: [["verb"], ["properNoun", "person"]],
+      wordMode: 
     },
     // Sec. 2
     sec1: {},
