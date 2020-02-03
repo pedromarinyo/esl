@@ -1,5 +1,7 @@
+// Word mode options
+const wordMode = {TEXT: "text", IMAGE: "image"};
+
 // Expeditions
-const wordMode = {TEST: "text", BLANK: "blank"};
 var expeditions = new Map([
   
   // Greece
@@ -13,7 +15,11 @@ var expeditions = new Map([
     // Sec. 1
     sec1: {
       wordBank: [["verb"], ["properNoun", "person"]],
-      wordMode: 
+      wordMode: wordMode.TEXT,
+      pages: [
+        [new wordQuery(["Person"], false), "is an awesome person."],
+        [new wordQuery(["Person"], false), "is an awesome person."]
+      ]
     },
     // Sec. 2
     sec1: {},
@@ -39,3 +45,20 @@ var expeditions = new Map([
     image: "assets/pantheon_past1.png"
   }],
 ]);
+
+
+
+
+// ___________________________________________________________________________
+// Misc. Functions
+// ___________________________________________________________________________
+
+function wordQuery(tags, showHint) {
+  this.tags = tags;
+  this.showHint = showHint;
+}
+
+function blankQuery(word, showHint) {
+  this.word = word;
+  this.showHint = showHint;
+}

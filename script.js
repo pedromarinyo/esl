@@ -2,7 +2,7 @@
 // _________________________
 var canvas = new fabric.Canvas('c');
 var expeditionDetailsCard; 
-var expeditionDetailsButton;
+var expeditionDetailsSectionButtons = [];
 
 var wordBankOffsetX = 640;
 var wordBankOffsetY = 240;
@@ -24,7 +24,8 @@ var showQuestions = false;
 var fadeInOutRect;
 fabric.Object.prototype.objectCaching = false;
 
-
+var isAnimatingClouds = true;
+var isAnimatingTravelLines = true;
 
 
 
@@ -57,7 +58,7 @@ function chapterIntroduction() {
 
 
 // ___________________________________________________________________________
-// Phases
+// Functions
 // ___________________________________________________________________________
 
 // Interface Functions
@@ -175,7 +176,7 @@ function createExpeditionDetails() {
     opacity: 0.9,    
     hoverCursor: 'default',
     width: 300,        
-    height: 400,
+    height: 500,
     left: 20,
     top: 20,
     cornerRadius: 10,
@@ -222,7 +223,6 @@ function createExpeditionDetails() {
     lockMovementY: true    
   }); 
 
-
   // Creating thumbnail image and adding to card group
   fabric.Image.fromURL("assets/pantheon_past1.png", function(oImg) {
     oImg.scale(0.31);
@@ -241,50 +241,48 @@ function createExpeditionDetails() {
 
     expeditionDetailsCard.add(oImg);       
   });
-
-  // _____
-    
-  // Creating button
-  var button = new fabric.Rect({        
-    fill: '#feff80',
-    opacity: 1,    
-    hoverCursor: 'pointer',
-    width: 200,        
-    height: 60,    
-    
-    
-    originY: 'top',
-    originX: 'left',
-    shadow: 'rgba(0,0,0,0.2) 0px 0px 10px'
-  });
-
-  // Creating button label
-  var label = new fabric.Textbox("Start!", {
-    width: 180,  
-    left: 10,
-    top: 10,    
-    fill: "#000",
-    fontFamily: 'satisfy',  
-    fontSize: 32,
-    hoverCursor: 'default',
-    textAlign: "center"
-  });
-
-  // Creating expedition details button group
-  expeditionDetailsButton = new fabric.Group([button, label], {
-    top: 550,
-    left: -200,
-    hasControls: false,
-    hasBorders: false,
-    selectable: false,
-    lockMovementX: true,
-    lockMovementY: true,
-    hoverCursor: "pointer"  
-  }); 
   
+  // Creating Sec. 1 - 4 buttons
+  for (i = 0; i < 3; i++) {
+    let buttonBackground = new fabric.Rect({
+      fill: '#feff80',
+      left: 0,
+      top: 0,
+      opacity: 1,    
+      hoverCursor: 'pointer',
+      width: 200,        
+      height: 60,    
+      
+      originY: 'top',
+      originX: 'left',
+      shadow: 'rgba(0,0,0,0.2) 0px 0px 10px'
+    });
+    let buttonLabel = new fabric.Textbox("Sec. " + (i + 1), {
+      width: 180,  
+      left: 0,
+      top: 15, 
+      fill: "#555",
+      fontFamily: 'satisfy',  
+      fontSize: 24,
+      hoverCursor: 'default',
+      textAlign: "center"
+    });
+
+    expeditionDetailsSectionButtons[i] = new fabric.Group([buttonBackground, buttonLabel], {
+      top: 420 + (i * 70),
+      left: 340,
+      hasControls: false,
+      hasBorders: false,
+      selectable: false,
+      lockMovementX: true,
+      lockMovementY: true,
+      hoverCursor: "pointer"  
+    });   
+  }
+
   // Adding to canvas  
   canvas.add(expeditionDetailsCard);
-  canvas.add(expeditionDetailsButton);
+  for (i = 0; i < expeditionDetailsSectionButtons.length; i++) { canvas.add(expeditionDetailsSectionButtons[i]); }  
 }
 
 // Update expedition details card
@@ -292,36 +290,42 @@ function updateExpeditionDetails(expedition) {
   
   // Updating details via global variable
   canvas.remove(expeditionDetailsCard);
-  expeditionDetailsButton.left = -300;
+  
+  for (i = 0; i < expeditionDetailsSectionButtons.length; i++) { expeditionDetailsSectionButtons[i].left = -100; }  
   expeditionDetailsCard.left = -300;
+
   expeditionDetailsCard.item(1).text = expedition.name;
   expeditionDetailsCard.item(2).text = expedition.description;
-  expeditionDetailsCard.item(3).setSrc(expedition.image);
+  expeditionDetailsCard.item(expeditionDetailsCard.size()-1).setSrc(expedition.image);
 
+  // Animating panel slide in
   expeditionDetailsCard.animate({'left': 40}, { 
     onChange: canvas.renderAll.bind(canvas), 
     duration: 600,
     easing: fabric.util.ease.easeOutQuad
   });
 
-  expeditionDetailsButton.animate({'left': 90}, { 
-    onChange: canvas.renderAll.bind(canvas), 
-    duration: 1000,
-    easing: fabric.util.ease.easeOutBack
-  });
+  for (i = 0; i < expeditionDetailsSectionButtons.length; i++) { 
+    expeditionDetailsSectionButtons[i].animate({'left': 340}, { 
+      onChange: canvas.renderAll.bind(canvas), 
+      duration: 1000,
+      easing: fabric.util.ease.easeOutBack
+    });
+  }  
 
   // Refresh canvas
   canvas.add(expeditionDetailsCard);
 
-  expeditionDetailsButton.bringToFront();
-  expeditionDetailsButton.on("mouseup", function() {  
-    fadeOut(1000);
-  });
+  //expeditionDetailsButton.bringToFront();
+  // expeditionDetailsButton.on("mouseup", function() {  
+  //   fadeOut(1000);
+  // });
 
 }
 
 // Animate map lines and clouds
 function animateTravelLines_to(line) {
+  if(!isAnimatingTravelLines) { return; }  
 
   // Generate random coordinates
   var coords = [
@@ -341,6 +345,8 @@ function animateTravelLines_to(line) {
   });   
 }
 function animateTravelLines_from(line) {
+  if(!isAnimatingTravelLines) { return; }  
+
   line.animate({'opacity': 0}, { 
     onChange: canvas.renderAll.bind(canvas), 
     duration: 1000,
@@ -349,6 +355,8 @@ function animateTravelLines_from(line) {
   });  
 }
 function animateClouds(clouds) {  
+  if(!isAnimatingClouds) { return; }  
+
   clouds.left = -2000;
   clouds.animate({'left': 1024}, { 
     onChange: canvas.renderAll.bind(canvas), 
@@ -551,4 +559,5 @@ function fadeIn(duration) {
   });
 }
 
-
+// State Functions
+function showExpedition(){}
